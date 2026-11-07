@@ -1,0 +1,20 @@
+# 全局安全头
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+
+# 入口文档：每次访问重新校验
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 脚本与样式：文件名无指纹，需强制校验
+/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 图片：内容固定，长缓存
+/img/*
+  Cache-Control: public, max-age=604800
