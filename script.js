@@ -38,7 +38,7 @@ function getSavedLang() {
 // 语言字典
 const i18nData = {
   'zh-CN': {
-    pageTitle: '新标签页',
+    pageTitle: 'Litestart',
     settingsTitle: '页面设置',
     close: '关闭',
     back: '返回',
@@ -238,7 +238,7 @@ const i18nData = {
     noImageSelected: '未选择图片',
   },
   'zh-TW': {
-    pageTitle: '新分頁',
+    pageTitle: 'Litestart',
     settingsTitle: '頁面設定',
     close: '關閉',
     back: '返回',
@@ -422,7 +422,7 @@ const i18nData = {
     noImageSelected: '未選擇圖片',
  },
   'en': {
-    pageTitle: 'New Tab',
+    pageTitle: 'Litestart',
     settingsTitle: 'Page Settings',
     close: 'Close',
     back: 'Back',
@@ -608,7 +608,7 @@ const i18nData = {
 
   },
   'ja': {
-    pageTitle: '新しいタブ',
+    pageTitle: 'Litestart',
     settingsTitle: '設定',
     close: '閉じる',
     back: '戻る',
@@ -793,7 +793,7 @@ const i18nData = {
     noImageSelected: '画像が選択されていません',
   },
   'ru': {
-    pageTitle: 'Новая вкладка',
+    pageTitle: 'Litestart',
     settingsTitle: 'Настройки страницы',
     close: 'Закрыть',
     back: 'Назад',
