@@ -1,10 +1,10 @@
 # 推送到 CNB 后镜像到 GitHub
-# 密钥：https://cnb.cool/Gumezm/keystore/-/blob/main/github.yml
+# 密钥：https://cnb.cool/Gumezm/keystore/-/blob/main/gh.yml
 
 .pipeline-mirror: &pipeline-mirror
   name: mirror-to-github
   imports:
-    - https://cnb.cool/Gumezm/keystore/-/blob/main/github.yml
+    - https://cnb.cool/Gumezm/keystore/-/blob/main/gh.yml
   env:
     GITHUB_REPO: Gumezm/Litestart
   stages:
