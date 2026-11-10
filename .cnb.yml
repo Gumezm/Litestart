@@ -1,5 +1,6 @@
 # 推送到 CNB 后镜像到 GitHub
 # 密钥：https://cnb.cool/Gumezm/keystore/-/blob/main/gh.yml
+# 令牌：GitHub 细粒度访问令牌，无过期，仅含四个仓库的 Contents 读写
 
 .pipeline-mirror: &pipeline-mirror
   name: mirror-to-github
