@@ -5001,9 +5001,9 @@ inputOnlineUrl?.addEventListener('input', () => {
   // 卡片尺寸分档：视口窄于 maxWidth 时适用该档的卡片边长/间距/图标边长
   // 与 index.html 中 ntp-quicklinks 的默认 CSS 变量保持一致
   const QUICKLINK_METRICS = [
-    { maxWidth: 480, size: 64, gap: 14, glyph: 34 },
-    { maxWidth: 760, size: 76, gap: 18, glyph: 40 },
-    { maxWidth: Infinity, size: 88, gap: 26, glyph: 46 }
+    { maxWidth: 480, size: 55, gap: 14, glyph: 19 },
+    { maxWidth: 760, size: 65, gap: 18, glyph: 23 },
+    { maxWidth: Infinity, size: 75, gap: 26, glyph: 26 }
   ];
   // 页面左右各保留的安全边距
   const QUICKLINK_SIDE_MARGIN = 16;

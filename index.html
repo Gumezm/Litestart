@@ -1812,9 +1812,9 @@
 
     /* 快速链接列表 */
     ntp-quicklinks {
-      --quicklink-card-size: 88px;   /* 图标方卡边长 */
-      --quicklink-item-width: 88px;  /* 单项宽度（与卡片同宽） */
-      --quicklink-glyph-size: 46px;  /* 卡片内图标边长 */
+      --quicklink-card-size: 75px;   /* 图标方卡边长 */
+      --quicklink-item-width: 75px;  /* 单项宽度（与卡片同宽） */
+      --quicklink-glyph-size: 26px;  /* 卡片内图标边长（卡片边长 35%） */
       --quicklink-gap: 26px;         /* 项间距（水平与垂直一致） */
       grid-row: 7; /* 宽度随窗口自适应 */
       width: var(--quicklinks-content-width, 544px);
@@ -1834,18 +1834,18 @@
     /* 窄屏下卡片按档缩小，与 script.js 的 QUICKLINK_METRICS 分档一致 */
     @media (max-width: 760px) {
       ntp-quicklinks {
-        --quicklink-card-size: 76px;
-        --quicklink-item-width: 76px;
-        --quicklink-glyph-size: 40px;
+        --quicklink-card-size: 65px;
+        --quicklink-item-width: 65px;
+        --quicklink-glyph-size: 23px;
         --quicklink-gap: 18px;
       }
     }
 
     @media (max-width: 480px) {
       ntp-quicklinks {
-        --quicklink-card-size: 64px;
-        --quicklink-item-width: 64px;
-        --quicklink-glyph-size: 34px;
+        --quicklink-card-size: 55px;
+        --quicklink-item-width: 55px;
+        --quicklink-glyph-size: 19px;
         --quicklink-gap: 14px;
       }
     }

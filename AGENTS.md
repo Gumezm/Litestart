@@ -104,3 +104,54 @@
 
 - `index.html` 与 `script.js` 的 Logo `<path>` 数据里含形如 `1.8.1`、`1.8.2` 的绘图坐标，不能按版本号替换
 - 逐文件断言出现次数后再替换，避免误伤
+
+## 推送与镜像
+
+代码推送到 CNB，GitHub 由流水线镜像，不再直接推送。
+
+**远程**
+
+| 远程名 | 地址 | 用途 |
+| --- | --- | --- |
+| `origin` | `https://cnb.cool/Gumezm/nav.git` | 日常推送与拉取 |
+| `github` | `git@github.com:Gumezm/Litestart.git` | 只读取上游，不推送 |
+
+**镜像流程**
+
+`.cnb.yml` 在 `push`（`main`、其他分支）与 `tag_push` 时执行：拉取 CNB 全部分支与标签，强制推送到 `.cnb.yml` 中 `GITHUB_REPO` 指定的 GitHub 仓库。GitHub 侧内容由 CNB 覆盖，直接在 GitHub 上的改动会被覆盖。
+
+**GitHub 凭据**
+
+存放在 CNB 密钥仓库 `Gumezm/keystore` 的 `gh.yml`（`GITHUB_USER`、`GITHUB_TOKEN`），只可在 Web 界面编辑。令牌轮换后改这一个文件，四个仓库同时生效。
+
+令牌为 GitHub 细粒度访问令牌，无过期时间，仅授权上表四个仓库的 `Contents: Read and write`（`github_pat_` 前缀）。更换时在 GitHub 个人设置新建同类令牌，替换 `gh.yml` 中的 `GITHUB_TOKEN`。
+
+| 本地目录 | CNB 仓库 | GitHub 仓库 |
+| --- | --- | --- |
+| `D:/Code/Website/nav` | `Gumezm/nav` | `Gumezm/Litestart` |
+| `D:/Code/Website/kijin` | `Gumezm/kijin` | `Gumezm/kijin` |
+| `D:/Code/Website/blog` | `Gumezm/www` | `Gumezm/gumezm.github.io` |
+| `D:/Code/Website/about` | `Gumezm/about` | `Gumezm/about` |
+
+四个本地仓库的远程命名统一为 `origin` = CNB、`github` = 原 GitHub 地址（只读上游）。
+
+**新增仓库时**
+
+1. 把 GitHub 已有内容推到 CNB（不要先推空仓库，`push --force` 会清空 GitHub 侧）
+2. 复制本仓库 `.cnb.yml`，只改 `GITHUB_REPO`
+3. 长期存在的非默认分支也要有 `.cnb.yml`，配置按被推送分支的文件版本读取，缺失则该分支不触发镜像
+
+**本地凭据**
+
+CNB 的 HTTPS 推送使用个人访问令牌，由 Windows 凭据管理器保存（用户名 `cnb`）。SSH 22 端口在本机网络不可达。
+
+## Git 操作约定
+
+- 改动文件后只执行 `git add`，不自动提交
+- 收到「commit」后才提交，收到「推送」后才推送
+- 缩写：`ga` = `git add`，`gc` = `git commit`，`gp` = `git push`
+- 适用范围：`D:/Code/Website` 下全部仓库
+
+## 记忆文件
+
+各仓库 `.workbuddy/*` 忽略，`!.workbuddy/memory` 与 `!.workbuddy/memory/**` 例外，记忆随仓库同步到 CNB。

@@ -64,7 +64,7 @@
     var qlEnabled = (qlShow === null) ? (qlRow !== '0') : (qlShow === true || qlShow === 'true');
     if (qlEnabled && qlPos !== 'bottom' && qlVw > 0) {
       // 与 script.js 的 QUICKLINK_METRICS / QUICKLINK_COLUMNS 保持一致
-      var qlItemW = qlVw < 480 ? 64 : (qlVw < 760 ? 76 : 88);
+      var qlItemW = qlVw < 480 ? 55 : (qlVw < 760 ? 65 : 75);
       var qlGap = qlVw < 480 ? 14 : (qlVw < 760 ? 18 : 26);
       var qlSide = 16;
       var qlMaxCols = 5;

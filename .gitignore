@@ -28,3 +28,8 @@ desktop.ini
 
 # 项目约定
 AGENTS.md
+
+# WorkBuddy 工作区数据：仅 memory/ 项目记忆入库，其余运行时数据只在本地
+.workbuddy/*
+!.workbuddy/memory
+!.workbuddy/memory/**
