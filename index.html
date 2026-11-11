@@ -80,6 +80,11 @@
       --search-width: 720px;
       --modal-mask: rgba(0, 0, 0, 0.52);
 
+      /* ===== 快速链接卡片 ===== */
+      --quicklink-card-bg: #ffffff;   /* 图标方卡底色 */
+      --quicklink-card-bg-hover: #f0f0f0;   /* 图标方卡悬停底色，浅色加深、深色提亮 */
+      --quicklink-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
       /* ===== 背景图上的半透明层 ===== */
       --enhanced-visibility-bg: rgba(255, 255, 255, 0.60);
       --enhanced-visibility-bg-hover: rgba(255, 255, 255, 0.78);
@@ -145,6 +150,10 @@
         --search-box-shadow-plain: 0 0 14px rgba(0, 0, 0, 0.18);
         --suggestions-shadow: 0 8px 22px rgba(0, 0, 0, 0.13);
         --search-box-bg-hover: #333333;
+
+        --quicklink-card-bg: #2b2b2b;
+        --quicklink-card-bg-hover: #383838;
+        --quicklink-card-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     }
 
     html {
@@ -1491,8 +1500,8 @@
 
     #inner {
       display: grid;
-      /* 底部弹性行略大于顶部，使 logo/搜索框/快速链接整体略高于几何中心 */
-      grid-template-rows: 1fr auto 72px 52px 18px 18px auto 1.2fr;
+      /* 底部弹性行大于顶部两倍，使 logo/搜索框/快速链接整体落在视口偏上位置 */
+      grid-template-rows: 1fr auto 48px 52px 18px 18px auto 2fr;
       justify-items: center;
       position: absolute;
       top: 0;
@@ -1620,9 +1629,8 @@
       transition: border-radius 0.15s ease, box-shadow 0.5s ease, background-color 0.15s ease, border-color 0.15s ease, outline 0.15s ease;
     }
 
-    /* 浅色模式下无背景时，浮动层使用固定底色，不跟随动态取色；文字仍按配色渲染 */
-    :root[data-theme="light"] body:not(.bg-enabled) #fakebox,
-    :root[data-theme="light"] body:not(.bg-enabled) .quicklink-icon {
+    /* 浅色模式下无背景时，搜索框使用固定底色，不跟随动态取色；文字仍按配色渲染 */
+    :root[data-theme="light"] body:not(.bg-enabled) #fakebox {
       background-color: var(--plain-floating-bg);
     }
 
@@ -1804,19 +1812,42 @@
 
     /* 快速链接列表 */
     ntp-quicklinks {
+      --quicklink-card-size: 88px;   /* 图标方卡边长 */
+      --quicklink-item-width: 88px;  /* 单项宽度（与卡片同宽） */
+      --quicklink-glyph-size: 46px;  /* 卡片内图标边长 */
+      --quicklink-gap: 26px;         /* 项间距（水平与垂直一致） */
       grid-row: 7; /* 宽度随窗口自适应 */
-      width: var(--quicklinks-content-width, 752px);
+      width: var(--quicklinks-content-width, 544px);
       max-width: 100%;
-      min-height: 60px;
+      min-height: var(--quicklink-card-size);
       display: flex;
       flex-direction: row;
-      flex-wrap: wrap;             /* 多行模式靠换行实现，每行 9 项 */
-      justify-content: center;
+      flex-wrap: wrap;             /* 每行按列数上限换行 */
+      justify-content: center;     /* 整行居中，末行不足一列数时同样居中 */
       align-items: center;
       /* 多行贴容器顶部，间距恒为 gap，行高不被拉伸 */
       align-content: flex-start;
-      gap: 10px;
+      gap: var(--quicklink-gap);
       overflow: visible;
+    }
+
+    /* 窄屏下卡片按档缩小，与 script.js 的 QUICKLINK_METRICS 分档一致 */
+    @media (max-width: 760px) {
+      ntp-quicklinks {
+        --quicklink-card-size: 76px;
+        --quicklink-item-width: 76px;
+        --quicklink-glyph-size: 40px;
+        --quicklink-gap: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      ntp-quicklinks {
+        --quicklink-card-size: 64px;
+        --quicklink-item-width: 64px;
+        --quicklink-glyph-size: 34px;
+        --quicklink-gap: 14px;
+      }
     }
 
     ntp-quicklinks[rows="0"] {
@@ -1829,12 +1860,14 @@
       visibility: hidden;
     }
 
-    html[data-quicklinks-lines="0"] ntp-quicklinks[rows="0"] { height: 60px; }
-    html[data-quicklinks-lines="1"] ntp-quicklinks[rows="0"] { height: 73px; }
-    html[data-quicklinks-lines="2"] ntp-quicklinks[rows="0"] { height: 156px; }
-    html[data-quicklinks-lines="3"] ntp-quicklinks[rows="0"] { height: 239px; }
-    html[data-quicklinks-lines="4"] ntp-quicklinks[rows="0"] { height: 322px; }
-    html[data-quicklinks-lines="5"] ntp-quicklinks[rows="0"] { height: 405px; }
+    /* 首帧占位高度：n 行 = n*项高 + (n-1)*间距，项高 = 卡片边长 + 名称区固定高度 */
+    html[data-quicklinks-lines="0"] ntp-quicklinks[rows="0"] { height: var(--quicklink-card-size); }
+    html[data-quicklinks-lines="1"] ntp-quicklinks[rows="0"] { height: calc(var(--quicklink-card-size) + 40px); }
+    html[data-quicklinks-lines="2"] ntp-quicklinks[rows="0"] { height: calc((var(--quicklink-card-size) + 40px) * 2 + var(--quicklink-gap)); }
+    html[data-quicklinks-lines="3"] ntp-quicklinks[rows="0"] { height: calc((var(--quicklink-card-size) + 40px) * 3 + var(--quicklink-gap) * 2); }
+    html[data-quicklinks-lines="4"] ntp-quicklinks[rows="0"] { height: calc((var(--quicklink-card-size) + 40px) * 4 + var(--quicklink-gap) * 3); }
+    html[data-quicklinks-lines="5"] ntp-quicklinks[rows="0"] { height: calc((var(--quicklink-card-size) + 40px) * 5 + var(--quicklink-gap) * 4); }
+    html[data-quicklinks-lines="6"] ntp-quicklinks[rows="0"] { height: calc((var(--quicklink-card-size) + 40px) * 6 + var(--quicklink-gap) * 5); }
 
     .quicklink-item {
       position: relative;
@@ -1842,16 +1875,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 80px;
+      width: var(--quicklink-item-width);
       flex-shrink: 0;              /* 防止被 flex 压缩宽度*/
-      padding: 6px 2px;
+      padding: 4px 0;
       box-sizing: border-box;
-      border-radius: 8px;
+      border-radius: 14px;
       text-decoration: none;
       color: var(--neutral-foreground-rest);
       font-size: 12px;
-      gap: 6px;
-      transition: background-color 0.1s;
+      gap: 8px;
       /* 只禁"选中文字"，不动拖拽：触屏长按拖拽（HTML5 drag）依赖原生手势，
          一旦加 -webkit-touch-callout: none / -webkit-user-drag: none 就会失效 */
       user-select: none;
@@ -1865,16 +1897,17 @@
       -webkit-user-select: none;
     }
 
-    .quicklink-item:hover {
-      /* 悬停使用较明显的填充档 */
-      background-color: var(--neutral-fill-hover);
+    /* 悬停加深只作用于图标方卡，项本身不改变底色 */
+    .quicklink-item:hover .quicklink-icon {
+      background-color: var(--quicklink-card-bg-hover);
     }
 
     .quicklink-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background-color: var(--neutral-layer-floating);
+      width: var(--quicklink-card-size);
+      height: var(--quicklink-card-size);
+      border-radius: 14px;
+      background-color: var(--quicklink-card-bg);
+      box-shadow: var(--quicklink-card-shadow);
       color: var(--neutral-foreground-rest);
       display: flex;
       align-items: center;
@@ -1882,23 +1915,30 @@
       font-weight: 600;
       overflow: hidden;
       font-size: 14px;
+      flex-shrink: 0;
+      transition: background-color 0.1s;
     }
 
-    .quicklink-icon img {
-      width: 22px;
-      height: 22px;
+    /* 自动解析的站点图标、内置预置图标共用同一尺寸 */
+    .quicklink-icon img,
+    .quicklink-icon > svg {
+      width: var(--quicklink-glyph-size);
+      height: var(--quicklink-glyph-size);
       object-fit: contain;
     }
 
     /* 站点图标覆盖（如 GitHub）：尺寸与 img 一致，颜色用 currentColor 跟随主题 */
     .quicklink-site-icon {
-      width: 22px;
-      height: 22px;
       display: block;
     }
 
     .quicklink-title {
-      max-width: 74px;
+      max-width: var(--quicklink-item-width);
+      /* 固定高度：行高 18 + 上内边距 3，增强可见性的 3px 内边距不再改变项高 */
+      height: 24px;
+      box-sizing: border-box;
+      padding-top: 3px;
+      line-height: 18px;
       font-size: 13px;          /* 比 .quicklink-item 继承来的 12px 大一号 */
       overflow: hidden;
       text-overflow: ellipsis;
@@ -2027,8 +2067,14 @@
     }
 
     .quicklink-add-icon {
-      background-color: var(--neutral-layer-floating);
+      background-color: var(--quicklink-card-bg);
       border: none;
+    }
+
+    /* 加号不随图标档位等比放大，略小于站点图标 */
+    .quicklink-add-icon > svg {
+      width: calc(var(--quicklink-glyph-size) - 8px);
+      height: calc(var(--quicklink-glyph-size) - 8px);
     }
 
     /* 展望模式布局排布 */
@@ -3177,7 +3223,7 @@
             <!-- 底部版权/链接区域 -->
             <div class="settings-footer">
               <div class="settings-footer-links">
-                <a href="#" id="btn-footer-version">LiteStart 1.9.0-beta3</a>| <span data-i18n="presentedBy">由</span> <a href="https://xingyuefox.pages.dev" target="_blank" data-i18n="xingyuefox">星月Fox</a> <span data-i18n="forYou">为您呈现</span>
+                <a href="#" id="btn-footer-version">LiteStart 1.9.0-rc1</a>| <span data-i18n="presentedBy">由</span> <a href="https://xingyuefox.pages.dev" target="_blank" data-i18n="xingyuefox">星月Fox</a> <span data-i18n="forYou">为您呈现</span>
               </div>
               <div class="settings-footer-links">
                 <a href="https://github.com/XingYueFox/Litestart/blob/main/PRIVACY_POLICY.md" data-i18n="cookieNotice">隐私政策</a> · 
@@ -3677,7 +3723,7 @@
     <div id="modal-about" class="modal-overlay">
       <div class="modal-dialog">
         <div class="modal-header" data-i18n="aboutTitle">关于 Litestart</div>
-        <p style="margin: 0; opacity: 0.7; font-size: 13px;" data-i18n="litever">版本 1.9.0-beta3 | 更新时间：2026-11-07</p><br>
+        <p style="margin: 0; opacity: 0.7; font-size: 13px;" data-i18n="litever">版本 1.9.0-rc1 | 更新时间：2026-11-11</p><br>
 
         <!-- 可用更新提示框 -->
         <div id="update-notice" class="update-notice" style="display: none;">

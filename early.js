@@ -63,24 +63,23 @@
     // 严格按布尔判断，避免存储里出现字符串 'false' 时被当作真值
     var qlEnabled = (qlShow === null) ? (qlRow !== '0') : (qlShow === true || qlShow === 'true');
     if (qlEnabled && qlPos !== 'bottom' && qlVw > 0) {
-      // 与 script.js 的 QUICKLINK_* 常量保持一致
-      var qlItemW = 80, qlGap = 10, qlSide = 16;
-      var qlMaxCols = qlRow === '2' ? 9 : 15;
+      // 与 script.js 的 QUICKLINK_METRICS / QUICKLINK_COLUMNS 保持一致
+      var qlItemW = qlVw < 480 ? 64 : (qlVw < 760 ? 76 : 88);
+      var qlGap = qlVw < 480 ? 14 : (qlVw < 760 ? 18 : 26);
+      var qlSide = 16;
+      var qlMaxCols = 5;
       var qlAvail = Math.min(
         qlVw - qlSide * 2,
         qlMaxCols * qlItemW + (qlMaxCols - 1) * qlGap
       );
       var qlCols = Math.min(qlMaxCols, Math.max(1, Math.floor((qlAvail + qlGap) / (qlItemW + qlGap))));
-      // 与实际渲染规则一致：单行模式只渲染前 perRow 项，多行模式全部渲染
+      // 与实际渲染规则一致：非底部位置不限项数，全部渲染后由 CSS 换行
       var qlAddBtn = JSON.parse(localStorage.getItem('ntp_show_add_button') || 'true');
       var qlAddOn = (qlAddBtn !== false);
       var qlCount = Array.isArray(qlList) ? qlList.length : 0;
-      var qlMaxItems = qlRow === '2' ? Infinity : qlCols;
-      var qlShown = Math.min(qlCount, qlMaxItems);
-      var qlHasAdd = qlAddOn && qlCount < qlMaxItems;
-      var qlTiles = qlShown + (qlHasAdd ? 1 : 0);
+      var qlTiles = qlCount + (qlAddOn ? 1 : 0);
       // 无格子时容器只靠 min-height 撑开
-      var qlLines = qlTiles === 0 ? 0 : Math.max(1, Math.min(5, Math.ceil(qlTiles / qlCols)));
+      var qlLines = qlTiles === 0 ? 0 : Math.max(1, Math.min(6, Math.ceil(qlTiles / qlCols)));
       document.documentElement.setAttribute('data-quicklinks-lines', String(qlLines));
     }
   } catch (e) {

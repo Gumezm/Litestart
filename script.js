@@ -1,4 +1,4 @@
-const APP_VERSION = '1.9.0-beta3';      // 发行版本
+const APP_VERSION = '1.9.0-rc1';      // 发行版本
 const GITHUB_REPO = 'XingYueFox/Litestart';
 
 const logos = {
@@ -78,7 +78,7 @@ const i18nData = {
     skipRestore: '恢复提醒',
     updateAvailable: '可用更新',
     aboutDesc: '一个简洁、快速的浏览器起始页。',
-    litever: '版本 1.9.0-beta3 | 更新时间：2026-11-07',
+    litever: '版本 1.9.0-rc1 | 更新时间：2026-11-11',
     versionInfo: '版本信息',
     and: '和',
     searchPlaceholder: '今天想用 {name} 搜索什么？',
@@ -278,7 +278,7 @@ const i18nData = {
     skipRestore: '恢復提醒',
     updateAvailable: '可用更新',
     aboutDesc: '一個簡潔、快速的瀏覽器起始頁。',
-    litever: '版本 1.9.0-beta3 | 更新時間：2026-11-07',
+    litever: '版本 1.9.0-rc1 | 更新時間：2026-11-11',
     versionInfo: '版本資訊',
     and: '與',
     searchPlaceholder: '今天想用 {name} 搜尋什麼？',
@@ -463,7 +463,7 @@ const i18nData = {
     skipRestore: 'Resume reminders',
     updateAvailable: 'Update available',
     aboutDesc: 'A simple and fast browser start page.',
-    litever: 'Version 1.9.0-beta3 | Updated: 2026-11-07',
+    litever: 'Version 1.9.0-rc1 | Updated: 2026-11-11',
     versionInfo: 'Version Info',
     and: '&',
     searchPlaceholder: 'What do you want to search with {name} today?',
@@ -649,7 +649,7 @@ const i18nData = {
     skipRestore: '通知を再開',
     updateAvailable: 'アップデートがあります',
     aboutDesc: 'シンプルで高速なブラウザスタートページです。',
-    litever: 'バージョン 1.9.0-beta3 | 更新日: 2026-11-07',
+    litever: 'バージョン 1.9.0-rc1 | 更新日: 2026-11-11',
     versionInfo: 'バージョン情報',
     and: 'と',
     searchPlaceholder: '今日は {name} で何を検索しますか？',
@@ -834,7 +834,7 @@ const i18nData = {
     skipRestore: 'Возобновить напоминания',
     updateAvailable: 'Доступно обновление',
     aboutDesc: 'Простая и быстрая страница запуска браузера.',
-    litever: 'Версия 1.9.0-beta3 | Обновлено: 2026-11-07',
+    litever: 'Версия 1.9.0-rc1 | Обновлено: 2026-11-11',
     versionInfo: 'Информация о версии',
     and: 'и',
     searchPlaceholder: 'Что поищем сегодня через {name}?',
@@ -2586,6 +2586,9 @@ document.addEventListener('DOMContentLoaded', () => {
       '--modal-bg': c('surfaceContainerLow'),
       '--settings-card-bg': c('surfaceContainerLow'),
       '--settings-card-hover': c('surfaceContainerHigh'),
+      // 快速链接卡片底色与浮动层同档，悬停加深一档
+      '--quicklink-card-bg': c('surfaceContainerLow'),
+      '--quicklink-card-bg-hover': c('surfaceContainerHigh'),
       // 按钮/选项的悬停填充：onSurface 带透明度叠在任意底色上，色相跟随当前配色
       '--neutral-fill-hover': c('onSurface') + '1C',
       '--neutral-fill-rest': c('onSurface') + '0D',
@@ -4995,50 +4998,74 @@ inputOnlineUrl?.addEventListener('input', () => {
 
   //=====快捷方式自适应计算--开始=====
 
-  // 单个快捷方式项的宽度
-  const QUICKLINK_ITEM_WIDTH = 80;
-  // 项与项之间的间距
-  const QUICKLINK_GAP = 10;
+  // 卡片尺寸分档：视口窄于 maxWidth 时适用该档的卡片边长/间距/图标边长
+  // 与 index.html 中 ntp-quicklinks 的默认 CSS 变量保持一致
+  const QUICKLINK_METRICS = [
+    { maxWidth: 480, size: 64, gap: 14, glyph: 34 },
+    { maxWidth: 760, size: 76, gap: 18, glyph: 40 },
+    { maxWidth: Infinity, size: 88, gap: 26, glyph: 46 }
+  ];
   // 页面左右各保留的安全边距
   const QUICKLINK_SIDE_MARGIN = 16;
-  // 单行模式：每行最多显示的项数，超出的项与"添加"按钮都不再渲染
-  const QUICKLINK_MAX_COLUMNS_ONE_ROW = 15;
-  // 多行模式：每行显示的项数，行数不限（窗口过窄时按实际可用列数收缩）
-  const QUICKLINK_MAX_COLUMNS_MULTI_ROW = 9;
+  // 每行项数：默认每行 5 项；底部固定位置（窗台）沿用 9 项
+  const QUICKLINK_COLUMNS = 5;
+  const QUICKLINK_COLUMNS_BOTTOM = 9;
 
-  // 当前生效的列数；仅当它发生变化时才需要重建 DOM
-  let quicklinksColumns = 0;
   let quicklinksLastRenderKey = '';
 
-  // 由列数反推容器内容宽度：n*80 + (n-1)*16
-  function quicklinksWidthForColumns(cols) {
-    return cols * QUICKLINK_ITEM_WIDTH + Math.max(0, cols - 1) * QUICKLINK_GAP;
+  // 当前视口对应的尺寸档
+  function quicklinkMetrics() {
+    const vw = document.documentElement.clientWidth || window.innerWidth;
+    for (let i = 0; i < QUICKLINK_METRICS.length; i++) {
+      if (vw < QUICKLINK_METRICS[i].maxWidth) return QUICKLINK_METRICS[i];
+    }
+    return QUICKLINK_METRICS[QUICKLINK_METRICS.length - 1];
   }
 
-  // 当前视口宽度下，单行最多能放多少项
+  // 把尺寸档写入 CSS 变量，卡片边长/间距/图标边长由这些变量决定
+  function applyQuicklinkMetrics() {
+    if (!quicklinksElem) return;
+    const m = quicklinkMetrics();
+    quicklinksElem.style.setProperty('--quicklink-card-size', m.size + 'px');
+    quicklinksElem.style.setProperty('--quicklink-item-width', m.size + 'px');
+    quicklinksElem.style.setProperty('--quicklink-glyph-size', m.glyph + 'px');
+    quicklinksElem.style.setProperty('--quicklink-gap', m.gap + 'px');
+  }
+
+  // 由列数反推容器内容宽度：n*size + (n-1)*gap
+  function quicklinksWidthForColumns(cols) {
+    const m = quicklinkMetrics();
+    return cols * m.size + Math.max(0, cols - 1) * m.gap;
+  }
+
+  // 当前位置允许的最大列数：底部固定位置优先放宽到 9 列
+  function quicklinksMaxColumns() {
+    const bottom = document.body.getAttribute('data-quicklink-position') === 'bottom';
+    return bottom ? QUICKLINK_COLUMNS_BOTTOM : QUICKLINK_COLUMNS;
+  }
+
+  // 当前视口宽度下，一行最多能放多少项
   // 只读视口宽度、不读取布局，避免 resize 期间反复强制重排
   function quicklinksAvailableColumns() {
     if (!quicklinksElem) return 0;
-    // 视口再宽也不会超过单行模式的上限；多行模式的每行项数更少，取两者较大值即可
-    const maxColumns = Math.max(QUICKLINK_MAX_COLUMNS_ONE_ROW, QUICKLINK_MAX_COLUMNS_MULTI_ROW);
+    const m = quicklinkMetrics();
+    // 视口再宽也不会超过两档上限中的较大值
+    const maxColumns = Math.max(QUICKLINK_COLUMNS, QUICKLINK_COLUMNS_BOTTOM);
     // 可用宽度受「视口 - 两侧安全边距」与「每行项数上限」共同约束
     const availableWidth = Math.min(
       document.documentElement.clientWidth - QUICKLINK_SIDE_MARGIN * 2,
       quicklinksWidthForColumns(maxColumns)
     );
-    // 反推列数：cols*80 + (cols-1)*16 <= availableWidth
+    // 反推列数：cols*size + (cols-1)*gap <= availableWidth
     return Math.max(1, Math.min(
       maxColumns,
-      Math.floor((availableWidth + QUICKLINK_GAP) / (QUICKLINK_ITEM_WIDTH + QUICKLINK_GAP))
+      Math.floor((availableWidth + m.gap) / (m.size + m.gap))
     ));
   }
 
-  // 当前设置下每行允许的列数
-  // 单行模式：最多 10 列；多行模式：每行 9 列（窄窗口按实际可用列数收缩）
-  function quicklinksColumnsPerRow(rowsValue) {
-    const available = quicklinksAvailableColumns();
-    if (rowsValue === '2') return Math.min(available, QUICKLINK_MAX_COLUMNS_MULTI_ROW);
-    return Math.min(available, QUICKLINK_MAX_COLUMNS_ONE_ROW);
+  // 每行允许的列数（窄窗口按实际可用列数收缩）
+  function quicklinksColumnsPerRow() {
+    return Math.min(quicklinksAvailableColumns(), quicklinksMaxColumns());
   }
 
   //=====快捷方式自适应计算--结束=====
@@ -5144,8 +5171,8 @@ inputOnlineUrl?.addEventListener('input', () => {
     if (!quicklinksElem) return;
 
     const rows = quicklinksElem.getAttribute('rows') || '0';
-    const perRow = quicklinksColumnsPerRow(rows);
-    quicklinksColumns = perRow;
+    const perRow = quicklinksColumnsPerRow();
+    applyQuicklinkMetrics();
 
     // 关闭快速链接：清空内容并退出
     if (rows === '0') {
@@ -5155,19 +5182,15 @@ inputOnlineUrl?.addEventListener('input', () => {
       return;
     }
 
-    // 单行模式：最多渲染 perRow 项（超出部分与"添加"按钮都不渲染）
-    // 多行模式：不限项数，全部渲染，由 CSS 换行成多行
-    const multiRow = rows === '2';
-    const maxItems = multiRow ? Infinity : perRow;
+    // 底部固定位置只能占一行，超出部分与"添加"按钮都不渲染；
+    // 其余情况不限项数，全部渲染并由 CSS 换行成多行
+    const bottomMode = document.body.getAttribute('data-quicklink-position') === 'bottom';
+    const maxItems = bottomMode ? perRow : Infinity;
     const shownLinks = quicklinksList.slice(0, maxItems);
-    // "添加"按钮显示条件：设置里开启 + 单行模式尚未排满（多行模式不限项数，只看开关）
+    // "添加"按钮显示条件：设置里开启 + 底部模式下尚未排满（其余模式只看开关）
     const hasAddButton = showAddButton && quicklinksList.length < maxItems;
-    // 容器内容宽度：多行模式固定为 perRow 列，保证每行排满 perRow 项后才换行（行数不限）；
-    // 单行模式按实际渲染项数收缩，左右不留空档
-    const widthColumns = multiRow
-      ? perRow
-      : Math.min(perRow, Math.max(1, shownLinks.length + (hasAddButton ? 1 : 0)));
-    const contentWidth = quicklinksWidthForColumns(widthColumns);
+    // 容器内容宽度固定为 perRow 列：一行未排满时由 justify-content 居中
+    const contentWidth = quicklinksWidthForColumns(perRow);
     // 缓存键必须带上标题与网址：只改名称时项数与 id 都没变，
     // 否则这里会被判成"无需重建"，界面要刷新才更新
     const renderKey = [rows, perRow, showAddButton ? '1' : '0', quicklinksList.length,
@@ -5194,7 +5217,7 @@ inputOnlineUrl?.addEventListener('input', () => {
 
   }
 
-  // 窗口尺寸变化：合并到下一帧处理，并且只在列数真正变化时才重建 DOM
+  // 窗口尺寸变化：合并到下一帧处理；列数或卡片档位变化时由 renderQuicklinks 自行重建
   let quicklinksResizeQueued = false;
   window.addEventListener('resize', () => {
     if (quicklinksResizeQueued) return;
@@ -5204,7 +5227,7 @@ inputOnlineUrl?.addEventListener('input', () => {
       if (!quicklinksElem) return;
       const rows = quicklinksElem.getAttribute('rows');
       if (rows === '0') return;
-      if (quicklinksColumnsPerRow(rows) !== quicklinksColumns) renderQuicklinks();
+      renderQuicklinks();
     });
   });
 
