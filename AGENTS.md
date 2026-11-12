@@ -154,4 +154,4 @@ CNB 的 HTTPS 推送使用个人访问令牌，由 Windows 凭据管理器保存
 
 ## 记忆文件
 
-各仓库 `.workbuddy/*` 忽略，`!.workbuddy/memory` 与 `!.workbuddy/memory/**` 例外，记忆随仓库同步到 CNB。
+`.workbuddy/` 整体忽略，不进仓库。
