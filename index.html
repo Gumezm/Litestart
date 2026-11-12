@@ -1942,6 +1942,8 @@
       padding-top: 3px;
       line-height: 18px;
       font-size: 13px;          /* 比 .quicklink-item 继承来的 12px 大一号 */
+      font-weight: 600;
+      color: #00001c;           /* 固定字色，独立于动态取色 */
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1950,6 +1952,10 @@
       user-select: none;
       -webkit-user-select: none;
       -webkit-user-drag: none;
+    }
+
+    :root[data-theme="dark"] .quicklink-title {
+      color: #fefcff;
     }
 
     .quicklink-edit-btn {
