@@ -64,13 +64,10 @@ const i18nData = {
     langAuto: '默认（跟随设备）',
     cookieNotice: '隐私政策',
     license: '开源协议',
-    contributor: '贡献名单',
     helpFeedback: '帮助&反馈',
-    presentedBy: '由',
     xingyuefox: '星月_Fox',
     AomiRaku: '羽梦千景',
-    forYou: '为您呈现',
-    disclaimer: '请注意，此网页与 Microsoft 无关。',
+    disclaimer: '本网页与 Microsoft 无关',
     aboutTitle: '关于 Litestart',
     download: '下载',
     updateOptions: '更新选项',
@@ -267,13 +264,10 @@ const i18nData = {
     langAuto: '預設（隨設備設定）',
     cookieNotice: '隱私政策',
     license: '開源協議',
-    contributor: '貢獻名單',
     helpFeedback: '說明與意見回饋',
-    presentedBy: '由',
     xingyuefox: '星月_Fox',
     AomiRaku: '羽梦千景',
-    forYou: '為您呈現',
-    disclaimer: '請注意，此網頁與 Microsoft 無關。',
+    disclaimer: '本網頁與 Microsoft 無關',
     aboutTitle: '關於 Litestart',
     download: '下載',
     updateOptions: '更新選項',
@@ -455,13 +449,10 @@ const i18nData = {
     langAuto: 'Default (System)',
     cookieNotice: 'Privacy Policy',
     license: 'License',
-    contributor: 'Contributor',
     helpFeedback: 'Help & Feedback',
-    presentedBy: 'Presented by',
     xingyuefox: 'XingYue_Fox',
     AomiRaku: 'Raku Inkyetta',
-    forYou: '',
-    disclaimer: 'Note: This page is not affiliated with Microsoft.',
+    disclaimer: 'This page is not affiliated with Microsoft',
     aboutTitle: 'About Litestart',
     download: 'Download',
     updateOptions: 'Update options',
@@ -644,13 +635,10 @@ const i18nData = {
     langAuto: 'デフォルト（システムに従う）',
     cookieNotice: 'プライバシーポリシー',
     license: 'License',
-    contributor: '貢献者',
     helpFeedback: 'ヘルプとフィードバック',
-    presentedBy: '提供:',
     xingyuefox: 'XingYue_Fox',
     AomiRaku: 'Raku Inkyetta',
-    forYou: '',
-    disclaimer: '注: このページは Microsoft とは関係ありません。',
+    disclaimer: 'このページは Microsoft とは関係ありません',
     aboutTitle: 'Litestart について',
     download: 'ダウンロード',
     updateOptions: '更新オプション',
@@ -832,13 +820,10 @@ const i18nData = {
     langAuto: 'По умолчанию (системный)',
     cookieNotice: 'Политика конфиденциальности',
     license: 'Лицензия',
-    contributor: 'Вкладчики',
     helpFeedback: 'Справка и отзывы',
-    presentedBy: 'Создатель:',
     xingyuefox: 'XingYue_Fox',
     AomiRaku: 'Raku Inkyetta',
-    forYou: '',
-    disclaimer: 'Примечание: Эта страница не связана с Microsoft.',
+    disclaimer: 'Эта страница не связана с Microsoft',
     aboutTitle: 'О Litestart',
     download: 'Скачать',
     updateOptions: 'Параметры обновления',
@@ -2468,14 +2453,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById('btn-about')?.addEventListener('click', openAboutModal);
-  document.getElementById('btn-footer-version')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    openAboutModal();
-  });
 
   document.getElementById('btn-about-close')?.addEventListener('click', () => {
     document.getElementById('modal-about')?.classList.remove('active');
     closeUpdateSkipMenu();
+  });
+
+  // 关于弹窗打开时按 ESC 关闭
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const modal = document.getElementById('modal-about');
+    if (modal && modal.classList.contains('active')) {
+      modal.classList.remove('active');
+      closeUpdateSkipMenu();
+    }
   });
 
   // 点击遮罩层关闭
