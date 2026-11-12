@@ -9,23 +9,17 @@ Cutting out the clutter, Litestart aims to provide you with a seamless, fast, an
 <a href="README.md">简体中文</a> | [<u>English</u>]
 ⚠The translation might not be 100% accurate!
 
+---
 
+> **Notice**
+>
+> This project is a fork of [XingYueFox/Litestart](https://github.com/XingYueFox/Litestart).
+>
+> Thanks to the original authors **XingYue_Fox** and **Raku Inkyetta** for their work and open-source contributions.
+>
+> This branch is maintained and customized by [Gumezm](https://about.seija.org).
 
-## Quick Start
-
-It is recommended to obtain and update Litestart from the plugin store
-
-<a href="https://microsoftedge.microsoft.com/addons/detail/gpfegedemfdpmggmbmcboldmdcmmobjc"><img src="docs/get/edge-addon.webp" alt="Get it from Microsoft Edge" height="48"></a>&nbsp;&nbsp;<a href="https://addons.mozilla.org/firefox/addon/litestart/"><img src="docs/get/ff-addon.webp" alt="Get it from Firefox ADD-ON" height="48"></a>
-
-***
-Or use file import
-1. Download the .CRX or .ZIP file from [Releases](https://github.com/XingYueFox/Litestart/releases).
-2. Open your browser's extension management page and enable Developer Mode.
-3. Drag the downloaded .CRX or .ZIP file into the extensions page to install.
-4. Find Litestart in the extension list and enable it.
-- ***If the .CRX file fails to install, try using the .ZIP archive instead.***
-***
-
+---
 
 ## About Litestart
 

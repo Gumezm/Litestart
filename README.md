@@ -8,25 +8,17 @@
 
 [<u>简体中文</u>] | <a href="README_EN.md">English</a>
 
+---
 
-## 快速开始
+> **声明**
+>
+> 本项目 Fork 自 [XingYueFox/Litestart](https://github.com/XingYueFox/Litestart)。
+>
+> 感谢原作者 **星月_Fox** 和 **羽梦千景** 的辛勤付出与开源贡献。
+>
+> 当前分支由 [Gumezm](https://about.seija.org) 进行二次维护与定制。
 
-建议从插件商店获取和更新 Litestart 
-
-<a href="https://microsoftedge.microsoft.com/addons/detail/gpfegedemfdpmggmbmcboldmdcmmobjc"><img src="docs/get/edge-addon.webp" alt="Get it from Microsoft Edge" height="48"></a>&nbsp;&nbsp;<a href="https://addons.mozilla.org/firefox/addon/litestart/"><img src="docs/get/ff-addon.webp" alt="Get it from Firefox ADD-ON" height="48"></a>
-
-***
-
-或者使用文件导入
-
-1. 从 [Releases](https://github.com/XingYueFox/Litestart/releases) 下载最新的.zip文件（Firefox请使用.xpi）
-2. 打开浏览器的扩展或者插件管理界面，然后启用开发人员模式
-3. 将你下载的.crx或者.zip文件托入插件界面导入
-4. 在插件列表找到LiteStart启用
-- ***请注意，如果无法启用请使用.zip导入***
-- 遇到麻烦？加入QQ群949401995
-***
-
+---
 
 ## 关于Litestart
 
@@ -57,7 +49,7 @@
 
 ## 重要声明
 *Litestart 完全免费，请勿从来源不明的地方获取此插件，否则造成的一切后果自负！<br>
-*此网页/插件，仅用于学习、测试与自有设备调优。
+*此网页仅用于学习、测试与自有设备调优。
 
 
 ## License
