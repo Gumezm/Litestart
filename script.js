@@ -1,5 +1,5 @@
 const APP_VERSION = '1.9.0-rc1';      // 发行版本
-const GITHUB_REPO = 'XingYueFox/Litestart';
+const GITHUB_REPO = 'Gumezm/Litestart';
 
 const logos = {
   bing: `
@@ -77,9 +77,12 @@ const i18nData = {
     skipThisUpdate: '暂时忽略',
     skipRestore: '恢复提醒',
     updateAvailable: '可用更新',
-    aboutDesc: '一个简洁、快速的浏览器起始页。',
+    aboutDesc: '一个简洁、快速的浏览器起始页',
+    aboutThanksAuthors: '感谢原作者',
+    aboutThanksContrib: '的开源贡献',
+    aboutMaintainPrefix: '本分支由',
+    aboutMaintainSuffix: '维护',
     litever: '版本 1.9.0-rc1 | 更新时间：2026-11-11',
-    versionInfo: '版本信息',
     and: '和',
     searchPlaceholder: '今天想用 {name} 搜索什么？',
     searchPlaceholderNight: '今晚想用 {name} 搜索什么？',
@@ -277,9 +280,12 @@ const i18nData = {
     skipThisUpdate: '暫時忽略',
     skipRestore: '恢復提醒',
     updateAvailable: '可用更新',
-    aboutDesc: '一個簡潔、快速的瀏覽器起始頁。',
+    aboutDesc: '一個簡潔、快速的瀏覽器起始頁',
+    aboutThanksAuthors: '感謝原作者',
+    aboutThanksContrib: '的開源貢獻',
+    aboutMaintainPrefix: '本分支由',
+    aboutMaintainSuffix: '維護',
     litever: '版本 1.9.0-rc1 | 更新時間：2026-11-11',
-    versionInfo: '版本資訊',
     and: '與',
     searchPlaceholder: '今天想用 {name} 搜尋什麼？',
     searchPlaceholderNight: '今晚想用 {name} 搜尋什麼？',
@@ -463,8 +469,11 @@ const i18nData = {
     skipRestore: 'Resume reminders',
     updateAvailable: 'Update available',
     aboutDesc: 'A simple and fast browser start page.',
+    aboutThanksAuthors: 'Thanks to the original authors',
+    aboutThanksContrib: 'for their open-source contributions',
+    aboutMaintainPrefix: 'This branch is maintained by',
+    aboutMaintainSuffix: '',
     litever: 'Version 1.9.0-rc1 | Updated: 2026-11-11',
-    versionInfo: 'Version Info',
     and: '&',
     searchPlaceholder: 'What do you want to search with {name} today?',
     searchPlaceholderNight: 'What do you want to search with {name} tonight?',
@@ -649,8 +658,11 @@ const i18nData = {
     skipRestore: '通知を再開',
     updateAvailable: 'アップデートがあります',
     aboutDesc: 'シンプルで高速なブラウザスタートページです。',
+    aboutThanksAuthors: '原作者の',
+    aboutThanksContrib: 'によるオープンソースへの貢献に感謝します',
+    aboutMaintainPrefix: 'このブランチは',
+    aboutMaintainSuffix: 'が維持しています',
     litever: 'バージョン 1.9.0-rc1 | 更新日: 2026-11-11',
-    versionInfo: 'バージョン情報',
     and: 'と',
     searchPlaceholder: '今日は {name} で何を検索しますか？',
     searchPlaceholderNight: '今夜は {name} で何を検索しますか？',
@@ -834,8 +846,11 @@ const i18nData = {
     skipRestore: 'Возобновить напоминания',
     updateAvailable: 'Доступно обновление',
     aboutDesc: 'Простая и быстрая страница запуска браузера.',
+    aboutThanksAuthors: 'Благодарность оригинальным авторам',
+    aboutThanksContrib: 'за вклад в проект с открытым исходным кодом',
+    aboutMaintainPrefix: 'Эту ветку поддерживает',
+    aboutMaintainSuffix: '',
     litever: 'Версия 1.9.0-rc1 | Обновлено: 2026-11-11',
-    versionInfo: 'Информация о версии',
     and: 'и',
     searchPlaceholder: 'Что поищем сегодня через {name}?',
     searchPlaceholderNight: 'Что поищем вечером через {name}?',
@@ -2456,10 +2471,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-footer-version')?.addEventListener('click', (e) => {
     e.preventDefault();
     openAboutModal();
-  });
-
-  document.getElementById('btn-versioninfo')?.addEventListener('click', () => {
-    window.open(`https://github.com/${GITHUB_REPO}/releases`, '_blank', 'noopener');
   });
 
   document.getElementById('btn-about-close')?.addEventListener('click', () => {

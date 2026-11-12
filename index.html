@@ -2169,6 +2169,12 @@
       line-height: 1.6;
     }
 
+    /* 弹窗内链接：中西文混排时下划线位置与粗细保持一致 */
+    .modal-text a {
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+
     .form-group {
       display: flex;
       flex-direction: column;
@@ -3755,20 +3761,24 @@
         </div>
 
         <div class="modal-text" style="line-height: 1.8;">
-          <p style="margin: 0 0 8px 0;" data-i18n="aboutDesc">一个简洁、快速的浏览器起始页。</p>
-            <p style="margin: 0 0 4px 0;">
-            <span data-i18n="presentedBy">由</span> 
-            <a href="https://xingyuefox.pages.dev" target="_blank" style="color: var(--accent-foreground-rest); " data-i18n="xingyuefox">XingYue_Fox</a>
-            <span data-i18n="and">和</span> 
-            <a href="https://raku404.com/" target="_blank" style="color: var(--accent-foreground-rest); " data-i18n="AomiRaku">AomiRaku</a>
-            <span data-i18n="forYou">为您呈现</span>
+          <p style="margin: 0 0 6px 0;" data-i18n="aboutDesc">一个简洁、快速的浏览器起始页</p>
+            <p style="margin: 0 0 6px 0;">
+            <span data-i18n="aboutThanksAuthors">感谢原作者</span>
+            <a href="https://xingyuefox.pages.dev" target="_blank" style="color: var(--accent-foreground-rest); " data-i18n="xingyuefox">星月_Fox</a>
+            <span data-i18n="and">和</span>
+            <a href="https://raku404.com/" target="_blank" style="color: var(--accent-foreground-rest); " data-i18n="AomiRaku">羽梦千景</a>
+            <span data-i18n="aboutThanksContrib">的开源贡献</span>
+          </p>
+            <p style="margin: 0;">
+            <span data-i18n="aboutMaintainPrefix">本分支由</span>&emsp;
+            <a href="https://about.seija.org" target="_blank" rel="noopener" style="color: var(--accent-foreground-rest); ">Gumezm</a>&emsp;
+            <span data-i18n="aboutMaintainSuffix">维护</span>
           </p>
 
 
           </div>
         <div class="modal-footer">
           <div class="modal-footer-right">
-              <button type="button" id="btn-versioninfo" class="btn btn-secondary" data-i18n="versionInfo">版本信息</button>
             <button type="button" id="btn-about-close" class="btn btn-secondary" data-i18n="close">关闭</button>
           </div>
         </div>
