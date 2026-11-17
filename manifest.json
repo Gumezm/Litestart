@@ -11,6 +11,10 @@
     "newtab": "index.html"
   },
 
+  "background": {
+    "service_worker": "background.js"
+  },
+
   "web_accessible_resources": [
     {
       "resources": ["img/*"],
@@ -21,6 +25,7 @@
   "host_permissions": [
     "https://bing.biturl.top/",
     "https://api.xinac.net/*",
+    "https://api.bing.com/*",
     "https://suggestion.baidu.com/*",
     "https://suggestqueries.google.com/*",
     "https://api.github.com/repos/XingYueFox/Litestart/releases/latest",

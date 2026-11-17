@@ -1371,12 +1371,11 @@
     /* 壁纸模式下色板依然可直接点击选色（选中即自动切到「手动」），不置灰 */
 
     /* ===== M3E 色相滑块 =====
-       原生 thumb 被浏览器钳制在轨道高度内（无法做出「略高于轨道」的效果），
-       因此手柄改为覆盖层 div：位置由 JS 按滑块值同步，pointer-events:none 不挡拖拽。*/
+       轨道 24px 高，原生 thumb 8×32px、圆角 4px，垂直居中。*/
     .md-hue-wrap {
       position: relative;
       width: 100%;
-      height: 44px;              /* = 手柄高度 */
+      height: 44px;
     }
 
     /* 轨道：M3 标准 16dp 高、8dp 圆角；保留色相彩虹渐变作为可选的色相映射 */
@@ -1401,41 +1400,26 @@
         center / 100% 24px no-repeat;
     }
 
-    /* 原生 thumb 隐形，仅保留几何占位（真实手柄用覆盖层绘制） */
+    /* 手柄由原生 thumb 绘制，位置与轨道天然对齐 */
     .md-hue-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 4px;
-      height: 44px;
-      background: transparent;
+      width: 8px;
+      height: 32px;
+      border-radius: 4px;
       border: none;
+      background-color: var(--md-hue-thumb, var(--accent-foreground-rest));
       cursor: grab;
     }
 
     .md-hue-slider:active::-webkit-slider-thumb { cursor: grabbing; }
 
     .md-hue-slider::-moz-range-thumb {
-      width: 4px;
-      height: 44px;
-      background: transparent;
+      width: 8px;
+      height: 32px;
+      border-radius: 4px;
       border: none;
-    }
-
-    /* M3 handle：4×44dp 细竖条，primary 主题色，圆角 2dp，上下各留 6dp 间隙
-       （间隙通过不铺满轨道区域实现：手柄虽高 44，但轨道只占中间 16，天然形成缝） */
-    .md-hue-handle {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 44px;
-      border-radius: 2px;
       background-color: var(--md-hue-thumb, var(--accent-foreground-rest));
-      border: none;
-      box-sizing: border-box;
-      pointer-events: none;      /* 拖拽事件全部交给原生 input */
-      transform: translateX(-50%);
-      will-change: left;
     }
 
     /* 悬停时箭头只做颜色加深，底色反馈由整行承担 */
@@ -1795,6 +1779,55 @@
       text-overflow: ellipsis;
     }
 
+    /* 词条右侧「填入搜索框」按钮：平时隐形但保留占位，悬停/键盘选中时淡入。
+       颜色取当前主题强调色（随壁纸动态取色），悬停与按下的反馈由所在词条承担 */
+    .suggestion-fill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      margin-right: -8px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--accent-foreground-rest);
+      opacity: 0;
+      visibility: hidden;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity 0.12s ease, visibility 0s linear 0.12s;
+    }
+
+    .suggestion-item:hover .suggestion-fill,
+    .suggestion-item.selected .suggestion-fill {
+      opacity: 0.9;
+      visibility: visible;
+      transition: opacity 0.12s ease, visibility 0s linear 0s;
+    }
+
+    /* 覆盖全局 button:hover 的底色，按钮自身不提供任何悬停/按下反馈 */
+    .suggestion-fill:hover,
+    .suggestion-fill:active {
+      background-color: transparent;
+    }
+
+    /* 图标为单一路径填充绘制，避免描边接缝；此处清掉列表统一的 fill/opacity 覆盖 */
+    .suggestion-item .suggestion-fill svg,
+    .suggestion-item.history .suggestion-fill svg {
+      fill: currentColor;
+      opacity: 1;
+    }
+
+    /* 触屏设备无 hover，直接常驻显示 */
+    @media (hover: none) {
+      .suggestion-fill {
+        opacity: 0.7;
+        visibility: visible;
+      }
+    }
+
     .suggestions-footer {
       padding: 10px 16px 12px;
       border-top: 1px solid var(--modal-border);
@@ -1899,8 +1932,9 @@
       -webkit-user-select: none;
     }
 
-    /* 悬停加深只作用于图标方卡，项本身不改变底色 */
-    .quicklink-item:hover .quicklink-icon {
+    /* 悬停加深只作用于图标方卡，项本身不改变底色；菜单展开期间保持同一状态 */
+    .quicklink-item:hover .quicklink-icon,
+    .quicklink-item.menu-open .quicklink-icon {
       background-color: var(--quicklink-card-bg-hover);
     }
 
@@ -1974,7 +2008,8 @@
       z-index: 2;
     }
 
-    .quicklink-item:hover .quicklink-edit-btn {
+    .quicklink-item:hover .quicklink-edit-btn,
+    .quicklink-item.menu-open .quicklink-edit-btn {
       opacity: 1;
     }
 
@@ -1990,7 +2025,7 @@
     .quicklink-menu {
       position: fixed;
       z-index: 2200;                   /* 高于自定义下拉浮层与图标面板 */
-      display: none;
+      display: block;
       min-width: 184px;
       /* 容器不留内边距：项的底色可直接铺到菜单左右边缘，
          上下同样顶到菜单边（圆角由 overflow:hidden 裁切） */
@@ -2000,10 +2035,18 @@
       background-color: var(--fill-popup-color);
       box-shadow: var(--dropdown-shadow);
       overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: none;
     }
 
     .quicklink-menu.active {
-      display: block;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      /* 出现时淡入；消失由基础态的 transition: none 立即完成 */
+      transition: opacity 0.1s ease-out;
     }
 
     /* 菜单按目标只显示适用的项 */
@@ -3593,8 +3636,6 @@
                     <div class="md-custom-panel" id="md-custom-panel" hidden>
                       <div class="md-hue-wrap">
                         <input type="range" id="md-hue-slider" class="md-hue-slider" min="0" max="360" step="1" value="220" aria-label="色相">
-                        <!-- 自绘 M3E 竖条手柄：原生 thumb 设为透明，位置由 JS 按 value 同步 -->
-                        <div class="md-hue-handle" id="md-hue-handle" aria-hidden="true"></div>
                       </div>
                     </div>
                   </div>

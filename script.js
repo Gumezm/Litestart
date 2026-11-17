@@ -90,6 +90,7 @@ const i18nData = {
     themeLight: '浅色',
     themeDark: '深色',
     searchInput: '搜索输入框',
+    fillSuggestion: '填入搜索框',
     clearSearchHistory: '清除搜索历史记录',
     defaultWallpaper: '默认',
     localFile: '本地文件',
@@ -290,6 +291,7 @@ const i18nData = {
     themeLight: '淺色',
     themeDark: '深色',
     searchInput: '搜尋輸入框',
+    fillSuggestion: '填入搜尋框',
     clearSearchHistory: '清除搜尋紀錄',
     defaultWallpaper: '預設',
     localFile: '本機檔案',
@@ -475,6 +477,7 @@ const i18nData = {
     themeLight: 'Light',
     themeDark: 'Dark',
     searchInput: 'Search input',
+    fillSuggestion: 'Fill into search box',
     clearSearchHistory: 'Clear search history',
     defaultWallpaper: 'Default',
     localFile: 'Local file',
@@ -661,6 +664,7 @@ const i18nData = {
     themeLight: 'ライト',
     themeDark: 'ダーク',
     searchInput: '検索入力ボックス',
+    fillSuggestion: '検索ボックスに入力',
     clearSearchHistory: '検索履歴を消去',
     defaultWallpaper: 'デフォルト',
     localFile: 'ローカルファイル',
@@ -846,6 +850,7 @@ const i18nData = {
     themeLight: 'Светлая',
     themeDark: 'Тёмная',
     searchInput: 'Поле поиска',
+    fillSuggestion: 'Вставить в поле поиска',
     clearSearchHistory: 'Очистить историю поиска',
     defaultWallpaper: 'По умолчанию',
     localFile: 'Локальный файл',
@@ -1999,6 +2004,17 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsHeightAnimTimer = setTimeout(finish, SETTINGS_PAGE_ANIM_MS + 60);
   }
 
+  // ESC 键：设置面板在二级页（背景/布局/颜色）时返回主设置页。
+  // 已展开的下拉优先由通用 ESC 逻辑关闭；已在主页时交回给其它处理（关闭面板等）
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!popoverSettings?.classList.contains('active')) return;
+    if (document.querySelector('.custom-select-dropdown.active')) return;
+    if (!popoverSettings.classList.contains('in-subpage')) return;
+    e.preventDefault();
+    showSettingsPage('main');
+  });
+
   // 仅切换页面的显示状态（不含动画），供动画与"减少动态效果"两条路径复用
   function applySettingsPageClasses(name) {
     const isMain = name === 'main';
@@ -2512,7 +2528,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const mdCustomSettings = document.getElementById('md-custom-settings');
   const mdHueSlider = document.getElementById('md-hue-slider');
   const mdCustomPanel = document.getElementById('md-custom-panel');
-  const mdHueHandle = document.getElementById('md-hue-handle');
   const mdSwatches = document.querySelectorAll('.md-swatch');
   const mdSwatchCustom = document.querySelector('.md-swatch-custom');
   const btnOpenColorModal = document.getElementById('btn-open-color-modal');
@@ -2586,15 +2601,17 @@ document.addEventListener('DOMContentLoaded', () => {
       '--fill-popup-color': c('surfaceContainerLow'),
       '--neutral-layer-floating': c('surfaceContainerLow'),
       '--modal-bg': c('surfaceContainerLow'),
-      '--settings-card-bg': c('surfaceContainerLow'),
-      '--settings-card-hover': c('surfaceContainerHigh'),
+      // 深色模式遵循 M3 海拔规范（海拔越高越亮）：面板比卡片暗一档；浅色模式保持卡片更浅
+      '--settings-card-bg': c(dark ? 'surfaceContainerHigh' : 'surfaceContainerLow'),
+      '--settings-card-hover': c(dark ? 'surfaceContainerHighest' : 'surfaceContainerHigh'),
       // 快速链接卡片底色与浮动层同档，悬停加深一档
       '--quicklink-card-bg': c('surfaceContainerLow'),
       '--quicklink-card-bg-hover': c('surfaceContainerHigh'),
       // 按钮/选项的悬停填充：onSurface 带透明度叠在任意底色上，色相跟随当前配色
       '--neutral-fill-hover': c('onSurface') + '1C',
       '--neutral-fill-rest': c('onSurface') + '0D',
-      '--settings-panel-bg': c('surfaceContainerHigh'),
+      // 面板与卡片反向取值，保证卡片浮于面板之上
+      '--settings-panel-bg': c(dark ? 'surfaceContainerLow' : 'surfaceContainerHigh'),
       '--suggestion-bg': c('surfaceContainerLow'),
       '--suggestion-hover': c('surfaceContainerHighest'),
       '--input-bg': c('surfaceContainerHighest'),
@@ -2963,21 +2980,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMdSwatches();
   }
 
-  // 自绘手柄位置：与原生 thumb 的几何一致（M3 手柄宽 4px，沿轨道两端内缩 2px）
-  const MD_HANDLE_W = 4;
-  function updateMdHueHandle() {
-    if (!mdHueSlider || !mdHueHandle || mdCustomPanel?.hidden) return;
-    const w = mdHueSlider.clientWidth;
-    if (!w) return;
-    const ratio = Number(mdHueSlider.value) / Number(mdHueSlider.max || 360);
-    mdHueHandle.style.left = (ratio * (w - MD_HANDLE_W) + MD_HANDLE_W / 2) + 'px';
-  }
-
   // 滑块拖动：实时重着色（rAF 合帧），松手才落盘
   if (mdHueSlider) {
     let raf = null;
     mdHueSlider.addEventListener('input', () => {
-      updateMdHueHandle();
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const seed = mdHueToSeed(Number(mdHueSlider.value));
@@ -2992,27 +2998,20 @@ document.addEventListener('DOMContentLoaded', () => {
       // mdHueToSeed 用 HSL 生成颜色，而 mdSeedToHue 读的是 HCT 色相，
       // 两者在黄绿/青色区可差 40°+，松手后滑块会突然跳走（用户感知为「回弹」）。
       // 滑块值本身就是用户的真实选择，保持不动。
-      updateMdHueHandle();
       applyMdColor();
     });
   }
-  window.addEventListener('resize', updateMdHueHandle);
 
   // 末位「自定义」卡片：点击展开/收起色相滑块
   function setCustomPanelOpen(open) {
     if (!mdCustomPanel || !mdSwatchCustom) return;
     mdCustomPanel.hidden = !open;
     mdSwatchCustom.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) {
-      // 展开后才有布局尺寸，先同步手柄位置（等一帧再量宽）
-      requestAnimationFrame(updateMdHueHandle);
-    }
   }
   mdSwatchCustom?.addEventListener('click', (e) => {
     e.stopPropagation();
     const open = mdSwatchCustom.getAttribute('aria-expanded') !== 'true';
     if (open && mdHueSlider) mdHueSlider.value = mdSeedToHue(getMdSeed());
-    updateMdHueHandle();
     setCustomPanelOpen(open);
   });
 
@@ -3029,7 +3028,6 @@ document.addEventListener('DOMContentLoaded', () => {
       Storage.set(MD_SEED_KEY, sw.getAttribute('data-seed'));
       Storage.set(MD_MODE_KEY, 'custom');
       if (mdHueSlider) mdHueSlider.value = mdSeedToHue(sw.getAttribute('data-seed'));
-      updateMdHueHandle();
       setCustomPanelOpen(false);
       applyMdColor();
     });
@@ -3074,7 +3072,6 @@ document.addEventListener('DOMContentLoaded', () => {
   btnOpenColorModal?.addEventListener('click', () => {
     // 打开时把滑块回显为当前种子色的色相
     if (mdHueSlider) mdHueSlider.value = mdSeedToHue(getMdSeed());
-    updateMdHueHandle();
     showSettingsPage('color');
   });
   btnCloseColorModal?.addEventListener('click', () => showSettingsPage('main'));
@@ -5134,7 +5131,7 @@ inputOnlineUrl?.addEventListener('input', () => {
       e.preventDefault();
       e.stopPropagation();          // 别让 document 上的关闭逻辑立刻把菜单收掉
       const r = editBtn.getBoundingClientRect();
-      showQuicklinkMenu(item, r.left, r.bottom + 4);
+      showQuicklinkMenu(item, r.left, r.bottom + 4, false, linkElem);
     });
 
     return linkElem;
@@ -5413,25 +5410,37 @@ function onDrop(e) {
       item.classList.remove('selected');
       item.removeAttribute('aria-current');
     });
+    // 菜单收起时撤掉触发元素的高亮
+    quicklinkMenu?._sourceEl?.classList.remove('menu-open');
+    if (quicklinkMenu) quicklinkMenu._sourceEl = null;
     quicklinkMenuTarget = null;
   }
 
   // 在指定位置弹出菜单（三个点按钮与右键共用同一套）
   // forAddButton 为真时只显示针对添加按钮的项
-  function showQuicklinkMenu(link, left, top, forAddButton) {
+  // sourceEl 为触发菜单的元素，菜单展开期间保持它的悬停态
+  function showQuicklinkMenu(link, left, top, forAddButton, sourceEl) {
     if (!quicklinkMenu) return;
+    // 先撤掉显示状态：菜单已开着时右键别处，也要先消失再重新淡入
+    quicklinkMenu.classList.remove('active');
+    // 连续右键不同项时先撤掉上一次的高亮
+    if (quicklinkMenu._sourceEl && quicklinkMenu._sourceEl !== sourceEl) {
+      quicklinkMenu._sourceEl.classList.remove('menu-open');
+    }
+    quicklinkMenu._sourceEl = sourceEl || null;
+    sourceEl?.classList.add('menu-open');
     quicklinkMenuTarget = link;
     quicklinkMenu.querySelectorAll('.quicklink-menu-item').forEach(item => {
       item.hidden = forAddButton ? item.dataset.action !== 'hide-add' : item.dataset.action === 'hide-add';
       item.classList.remove('selected');
       item.removeAttribute('aria-current');
     });
-    quicklinkMenu.classList.add('active');
     const rect = quicklinkMenu.getBoundingClientRect();
     if (left + rect.width > window.innerWidth - 8) left = window.innerWidth - rect.width - 8;
     if (top + rect.height > window.innerHeight - 8) top = window.innerHeight - rect.height - 8;
     quicklinkMenu.style.left = Math.max(8, left) + 'px';
     quicklinkMenu.style.top = Math.max(8, top) + 'px';
+    requestAnimationFrame(() => quicklinkMenu.classList.add('active'));
   }
 
   quicklinksElem?.addEventListener('contextmenu', (e) => {
@@ -5439,12 +5448,12 @@ function onDrop(e) {
     if (!item) return;
     e.preventDefault();
     if (item.classList.contains('quicklink-add-btn')) {
-      showQuicklinkMenu(null, e.clientX, e.clientY, true);
+      showQuicklinkMenu(null, e.clientX, e.clientY, true, item);
       return;
     }
     const link = quicklinksList.find(x => x.id === item.getAttribute('data-id'));
     if (!link) return;
-    showQuicklinkMenu(link, e.clientX, e.clientY);
+    showQuicklinkMenu(link, e.clientX, e.clientY, false, item);
   });
 
   quicklinkMenu?.addEventListener('click', (e) => {
@@ -5489,12 +5498,12 @@ function onDrop(e) {
     if (e.target === modalAddButtonHidden) modalAddButtonHidden.classList.remove('active');
   });
 
-  // 点空白处、按 Esc、失焦、改变窗口大小都收起
-  document.addEventListener('click', (e) => {
+  // 指针按下即收起菜单：捕获阶段执行，不受控件自身 stopPropagation 影响
+  document.addEventListener('pointerdown', (e) => {
     if (!quicklinkMenu?.classList.contains('active')) return;
     if (e.target instanceof Element && e.target.closest('.quicklink-menu')) return;
     hideQuicklinkMenu();
-  });
+  }, true);
   // 选中项按选项菜单的规则：单选、铺满整项、加粗强调色。
   // 菜单内的当前选中项以 aria-current 标记，供样式与键盘导航共用。
   function setQuicklinkMenuItemSelected(item) {
@@ -5792,6 +5801,10 @@ function onDrop(e) {
     selectedSuggestionIndex = -1;
   }
 
+  // 单条建议高度下限（面板至少保留一行）、距视口底部的留白
+  const SUGGEST_ITEM_H = 40;
+  const SUGGEST_EDGE = 8;
+
   // 渲染搜索联想下拉列表，合并历史记录与在线建议词条
   function renderSuggestions(historyItems, suggestionItems) {
     if (!suggestionList) return;
@@ -5821,7 +5834,33 @@ function onDrop(e) {
       // 历史项入库时已转义，只需转义来自接口的建议词
       const labelText = itemObj.isHistory ? itemObj.text : sanitizeInput(itemObj.text);
       li.innerHTML = `${itemObj.isHistory ? historySvgIcon : searchSvgIcon}<span class="suggestion-text">${labelText}</span>`;
-      
+
+      // 右侧「填入搜索框」按钮：悬停或键盘选中时显现，点击只填充不直接搜索
+      const fillBtn = document.createElement('button');
+      fillBtn.type = 'button';
+      fillBtn.className = 'suggestion-fill';
+      const fillLabel = (window._i18nDict && window._i18nDict.fillSuggestion) || '填入搜索框';
+      fillBtn.title = fillLabel;
+      fillBtn.setAttribute('aria-label', fillLabel);
+      fillBtn.innerHTML = `<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M260-658v264q0 13-8.5 21.5T230-364q-13 0-21.5-8.5T200-394v-336q0-13 8.5-21.5T230-760h336q13 0 21.5 8.5T596-730q0 13-8.5 21.5T566-700H302l477 477q9 9 9 21t-9 21q-9 9-21 9t-21-9L260-658Z"/></svg>`;
+      // mousedown 阻止默认行为：避免按钮抢走输入框焦点（保持光标在框内）
+      fillBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      fillBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const text = decodeInput(itemObj.text);
+        if (searchInput) {
+          searchInput.value = text;
+          searchInput.focus();
+          try { searchInput.setSelectionRange(text.length, text.length); } catch (err) { /* 忽略 */ }
+          // 触发 input 事件：同步 fakebox 的 has-value 状态并按新词刷新联想
+          searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      });
+      li.appendChild(fillBtn);
+
       li.addEventListener('click', () => {
         if (searchInput) searchInput.value = decodeInput(itemObj.text);
         doSearch(decodeInput(itemObj.text));   // 搜索要用原文，不能用转义后的实体
@@ -5834,12 +5873,72 @@ function onDrop(e) {
       suggestionsFooter.style.display = historyItems.length > 0 ? 'block' : 'none';
     }
 
+    // 面板高度不超过视口：按实际渲染高度从末尾裁掉多余条目，不出现滚动条
+    const box = document.getElementById('suggestions-box');
+    if (box) {
+      const top = box.getBoundingClientRect().top;
+      const maxHeight = Math.max(SUGGEST_ITEM_H, window.innerHeight - top - SUGGEST_EDGE);
+      box.style.maxHeight = maxHeight + 'px';
+      box.style.overflowY = 'hidden';
+      let guard = 0;
+      while (box.scrollHeight > maxHeight &&
+             suggestionList.children.length > 1 &&
+             guard++ < 100) {
+        suggestionList.removeChild(suggestionList.lastElementChild);
+      }
+    }
+
     searchContainer?.classList.add('suggestions-open');
+  }
+
+  // 取联想词：扩展环境交给 background 代取并解析，网页环境返回 null 由调用方直连。
+  // 扩展页面的 fetch 受 CORS 限制，而三家接口都不返回 CORS 头，只能由 service worker 代取
+  async function requestSuggestFromProxy(engine, query) {
+    const runtime = (typeof chrome !== 'undefined' && chrome.runtime &&
+      typeof chrome.runtime.sendMessage === 'function') ? chrome.runtime : null;
+    if (!runtime) return null;
+
+    // 加超时避免调用方永久停在 await
+    const PROXY_TIMEOUT = 3000;
+    const reply = await new Promise(resolve => {
+      let settled = false;
+      let timer = null;
+      const finish = (value) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(value);
+      };
+      timer = setTimeout(() => {
+        console.warn('联想词代理超时，回退到直连');
+        finish(null);
+      }, PROXY_TIMEOUT);
+      try {
+        runtime.sendMessage({ type: 'liteSuggest', engine, query }, res => {
+          // 没有接收方时 lastError 会被置位，此处按失败处理并回退
+          if (runtime.lastError) {
+            console.warn('联想词代理不可用:', runtime.lastError.message);
+            finish(null);
+          } else {
+            finish(res || null);
+          }
+        });
+      } catch (e) {
+        console.warn('联想词代理调用异常:', e);
+        finish(null);
+      }
+    });
+    if (reply && reply.ok) return reply.items;
+    if (reply && reply.error) console.warn('联想词代理返回失败:', reply.error);
+    return null;
   }
 
   // 扩展专用的异步 Fetch 搜索
   async function fetchSearchSuggestions(engine, query) {
     try {
+      const proxied = await requestSuggestFromProxy(engine, query);
+      if (proxied) return proxied;
+
       if (engine === 'baidu' || engine === 'bing') {
         const response = await fetch(`https://suggestion.baidu.com/su?wd=${encodeURIComponent(query)}&p=3`);
         const buffer = await response.arrayBuffer();
@@ -5862,9 +5961,13 @@ function onDrop(e) {
     return [];
   }
 
+  // 只渲染最后一次请求的结果，避免慢响应覆盖新输入
+  let suggestRequestSeq = 0;
+
   // 获取搜索联想建议：匹配历史记录 + 异步请求搜索引擎建议
   async function fetchAndShowSuggestions() {
     if (!searchInput) return;
+    const seq = ++suggestRequestSeq;
     const query = searchInput.value.trim();
 
     let matchedHistory = [];
@@ -5892,6 +5995,9 @@ function onDrop(e) {
       fetchedSuggestions = await fetchSearchSuggestions(engine, query);
     }
 
+    // 丢弃已过期输入结果
+    if (seq !== suggestRequestSeq) return;
+
     renderSuggestions(matchedHistory, fetchedSuggestions.slice(0, 8));
   }
 
@@ -5905,6 +6011,13 @@ function onDrop(e) {
   }
 
   const debouncedFetchSuggestions = debounce(fetchAndShowSuggestions, 150);
+
+  // 视口尺寸变化后按新的剩余空间重排条数；面板未展开时不处理
+  window.addEventListener('resize', () => {
+    if (searchContainer?.classList.contains('suggestions-open')) {
+      debouncedFetchSuggestions();
+    }
+  });
 
   fakebox?.addEventListener('click', () => {
     searchInput?.focus();
