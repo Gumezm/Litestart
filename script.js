@@ -1,4 +1,4 @@
-const APP_VERSION = '1.9.0-rc1';      // 发行版本
+const APP_VERSION = '1.9.1';      // 发行版本
 const GITHUB_REPO = 'Gumezm/Litestart';
 
 const logos = {
@@ -79,7 +79,7 @@ const i18nData = {
     aboutThanksContrib: '的开源贡献',
     aboutMaintainPrefix: '本分支由',
     aboutMaintainSuffix: '维护',
-    litever: '版本 1.9.0-rc1 | 更新时间：2026-11-11',
+    litever: '版本 1.9.1 | 更新时间：2026-11-17',
     and: '和',
     searchPlaceholder: '今天想用 {name} 搜索什么？',
     searchPlaceholderNight: '今晚想用 {name} 搜索什么？',
@@ -280,7 +280,7 @@ const i18nData = {
     aboutThanksContrib: '的開源貢獻',
     aboutMaintainPrefix: '本分支由',
     aboutMaintainSuffix: '維護',
-    litever: '版本 1.9.0-rc1 | 更新時間：2026-11-11',
+    litever: '版本 1.9.1 | 更新時間：2026-11-17',
     and: '與',
     searchPlaceholder: '今天想用 {name} 搜尋什麼？',
     searchPlaceholderNight: '今晚想用 {name} 搜尋什麼？',
@@ -466,7 +466,7 @@ const i18nData = {
     aboutThanksContrib: 'for their open-source contributions',
     aboutMaintainPrefix: 'This branch is maintained by',
     aboutMaintainSuffix: '',
-    litever: 'Version 1.9.0-rc1 | Updated: 2026-11-11',
+    litever: 'Version 1.9.1 | Updated: 2026-11-17',
     and: '&',
     searchPlaceholder: 'What do you want to search with {name} today?',
     searchPlaceholderNight: 'What do you want to search with {name} tonight?',
@@ -653,7 +653,7 @@ const i18nData = {
     aboutThanksContrib: 'によるオープンソースへの貢献に感謝します',
     aboutMaintainPrefix: 'このブランチは',
     aboutMaintainSuffix: 'が維持しています',
-    litever: 'バージョン 1.9.0-rc1 | 更新日: 2026-11-11',
+    litever: 'バージョン 1.9.1 | 更新日: 2026-11-17',
     and: 'と',
     searchPlaceholder: '今日は {name} で何を検索しますか？',
     searchPlaceholderNight: '今夜は {name} で何を検索しますか？',
@@ -839,7 +839,7 @@ const i18nData = {
     aboutThanksContrib: 'за вклад в проект с открытым исходным кодом',
     aboutMaintainPrefix: 'Эту ветку поддерживает',
     aboutMaintainSuffix: '',
-    litever: 'Версия 1.9.0-rc1 | Обновлено: 2026-11-11',
+    litever: 'Версия 1.9.1 | Обновлено: 2026-11-17',
     and: 'и',
     searchPlaceholder: 'Что поищем сегодня через {name}?',
     searchPlaceholderNight: 'Что поищем вечером через {name}?',
